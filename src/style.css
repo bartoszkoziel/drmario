@@ -16,4 +16,5 @@ body {
    height: 40px;
    float: left;
    outline: 1px black solid;
+   border-radius: 5px;
 }
