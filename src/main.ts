@@ -8,10 +8,7 @@ interface Square {
 }
 
 interface Pill {
-   squares: [
-      { x: number; y: number; color: string },
-      { x: number; y: number; color: string }
-   ]
+   squares: [{ x: number; y: number; color: string }, { x: number; y: number; color: string }]
    axis: string
 }
 
@@ -32,10 +29,7 @@ class Game {
       document.onkeydown = (e) => {
          if (e.key == "ArrowRight") {
             // CHECKING IF MOVE IS POSSIBLE
-            if (
-               this.pill.squares[0].x + 1 < this.width &&
-               this.pill.squares[1].x + 1 < this.width
-            ) {
+            if (this.pill.squares[0].x + 1 < this.width && this.pill.squares[1].x + 1 < this.width) {
                this.pill.squares[0].x += 1
                this.pill.squares[1].x += 1
                this.printer()
@@ -46,10 +40,7 @@ class Game {
 
          if (e.key == "ArrowLeft") {
             // CHECKING IF MOVE IS POSSIBLE
-            if (
-               this.pill.squares[0].x - 1 >= 0 &&
-               this.pill.squares[1].x - 1 >= 0
-            ) {
+            if (this.pill.squares[0].x - 1 >= 0 && this.pill.squares[1].x - 1 >= 0) {
                this.pill.squares[0].x -= 1
                this.pill.squares[1].x -= 1
                this.printer()
@@ -68,15 +59,11 @@ class Game {
 
    printer() {
       for (let i = 0; i < this.currTab.length; i++) {
-         let block = document.getElementById(
-            this.currTab[i].x + "_" + this.currTab[i].y
-         ) as HTMLElement
+         let block = document.getElementById(this.currTab[i].x + "_" + this.currTab[i].y) as HTMLElement
          block.style.backgroundColor = this.currTab[i].color
       }
       for (let i = 0; i < 2; i++) {
-         let block = document.getElementById(
-            this.pill.squares[i].x + "_" + this.pill.squares[i].y
-         ) as HTMLElement
+         let block = document.getElementById(this.pill.squares[i].x + "_" + this.pill.squares[i].y) as HTMLElement
          block.style.backgroundColor = this.pill.squares[i].color
       }
    }
@@ -89,7 +76,12 @@ class Game {
             block.id = x + "_" + y
 
             this.main.append(block)
-            this.currTab.push({ x: x, y: y, color: "white", state: "none" })
+            this.currTab.push({
+               x: x,
+               y: y,
+               color: "white",
+               state: "none"
+            })
             console.log("eququq")
          }
       }
@@ -102,10 +94,70 @@ class Game {
       this.pill = {
          squares: [
             { x: x, y: y, color: rColor1 },
-            { x: x + 1, y: y, color: rColor2 },
+            { x: x + 1, y: y, color: rColor2 }
          ],
-         axis: "right",
+         axis: "right"
       }
+
+      this.pillInterval = setInterval(() => {
+         console.log("INTERVAL RUNNING...")
+
+         if (this.isBelowFree()) {
+            this.pill.squares[0].y += 1
+            this.pill.squares[1].y += 1
+            this.printer()
+         } else {
+            let index0 = this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y)
+            let index1 = this.getIndexOf(this.pill.squares[1].x, this.pill.squares[1].y)
+
+            console.log("INDEX0", index0)
+
+            this.currTab[index0].color = this.pill.squares[0].color
+            this.currTab[index1].color = this.pill.squares[1].color
+
+            clearInterval(this.pillInterval!)
+            setTimeout(() => {
+               this.createPill(this.startX, this.startY)
+               this.printer()
+            }, 1000)
+         }
+      }, 500)
+   }
+
+   isBelowFree() {
+      // Checking axis and if the pill is at the bottom
+      if (this.pill.axis == "right" && this.pill.squares[0].y + 1 < this.height) {
+         // Checking if the colors of the blocks below are white
+         if (
+            this.currTab[this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y + 1)].color == "white" &&
+            this.currTab[this.getIndexOf(this.pill.squares[1].x, this.pill.squares[1].y + 1)].color == "white"
+         ) {
+            console.log("ISBELOWFREE : TRUE")
+            return true
+         }
+      }
+
+      // if (
+      //    this.pill.axis == "right" &&
+      //    this.currTab[
+      //       this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y + 1)
+      //    ].color == "white" &&
+      //    this.currTab[
+      //       this.getIndexOf(this.pill.squares[1].x, this.pill.squares[1].y + 1)
+      //    ].color == "white"
+      // ) {
+      //    return true
+      // }
+      // console.log("RETURNED FALSE")
+
+      console.log("ISBELOWFREE : FALSE")
+      return false
+   }
+
+   getIndexOf(x: number, y: number) {
+      console.log(y * this.width + x)
+
+      return y * this.width + x
    }
 
    numberToColor(num: number): string {
