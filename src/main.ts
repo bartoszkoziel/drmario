@@ -29,7 +29,10 @@ class Game {
       document.onkeydown = (e) => {
          if (e.key == "ArrowRight") {
             // CHECKING IF MOVE IS POSSIBLE
-            if (this.pill.squares[0].x + 1 < this.width && this.pill.squares[1].x + 1 < this.width) {
+            if ((this.pill.squares[0].x + 1 < this.width && this.pill.squares[1].x + 1 < this.width) &&
+               this.currTab[this.getIndexOf(this.pill.squares[0].x + 1, this.pill.squares[0].y)].color == "white" &&
+               this.currTab[this.getIndexOf(this.pill.squares[1].x + 1, this.pill.squares[1].y)].color == "white"
+            ) {
                this.pill.squares[0].x += 1
                this.pill.squares[1].x += 1
                this.printer()
@@ -38,15 +41,25 @@ class Game {
             }
          }
 
-         if (e.key == "ArrowLeft") {
+         else if (e.key == "ArrowLeft") {
             // CHECKING IF MOVE IS POSSIBLE
-            if (this.pill.squares[0].x - 1 >= 0 && this.pill.squares[1].x - 1 >= 0) {
+            if ((this.pill.squares[0].x - 1 >= 0 && this.pill.squares[1].x - 1 >= 0) &&
+               this.currTab[this.getIndexOf(this.pill.squares[0].x - 1, this.pill.squares[0].y)].color == "white" &&
+               this.currTab[this.getIndexOf(this.pill.squares[1].x - 1, this.pill.squares[1].y)].color == "white"
+            ) {
                this.pill.squares[0].x -= 1
                this.pill.squares[1].x -= 1
                this.printer()
             } else {
                console.log("OUT OF BOUNDS")
             }
+         }
+
+         else if (e.key == "z") {
+            if (this.pill.axis == "right") { this.pill.axis = "down"; this.rotate("down") }
+            else if (this.pill.axis == "down") { this.pill.axis = "left"; this.rotate("left") }
+            else if (this.pill.axis == "left") { this.pill.axis = "up"; this.rotate("up") }
+            else if (this.pill.axis == "up") { this.pill.axis = "right"; this.rotate("right") }
          }
          console.log(e.key)
       }
@@ -121,10 +134,43 @@ class Game {
                this.printer()
             }, 1000)
          }
-      }, 500)
+      }, 5000)
+   }
+
+   rotate(dir: string) {
+      if (dir == "down") {
+         let index = this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y + 1)
+         if (this.currTab[index].color == "white") {
+            this.pill.squares[1].x = this.currTab[index].x
+            this.pill.squares[1].y = this.currTab[index].y
+            this.printer()
+         }
+      } else if (dir == "left") {
+         let index = this.getIndexOf(this.pill.squares[0].x - 1, this.pill.squares[0].y)
+         if (this.currTab[index].color == "white") {
+            this.pill.squares[1].x = this.currTab[index].x
+            this.pill.squares[1].y = this.currTab[index].y
+            this.printer()
+         }
+      } else if (dir == "up") {
+         let index = this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y - 1)
+         if (this.currTab[index].color == "white") {
+            this.pill.squares[1].x = this.currTab[index].x
+            this.pill.squares[1].y = this.currTab[index].y
+            this.printer()
+         }
+      } else if (dir == "right") {
+         let index = this.getIndexOf(this.pill.squares[0].x + 1, this.pill.squares[0].y)
+         if (this.currTab[index].color == "white") {
+            this.pill.squares[1].x = this.currTab[index].x
+            this.pill.squares[1].y = this.currTab[index].y
+            this.printer()
+         }
+      }
    }
 
    isBelowFree() {
+      // PROBLEM HERE!
       // Checking axis and if the pill is at the bottom
       if (this.pill.axis == "right" && this.pill.squares[0].y + 1 < this.height) {
          // Checking if the colors of the blocks below are white
@@ -137,18 +183,7 @@ class Game {
          }
       }
 
-      // if (
-      //    this.pill.axis == "right" &&
-      //    this.currTab[
-      //       this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y + 1)
-      //    ].color == "white" &&
-      //    this.currTab[
-      //       this.getIndexOf(this.pill.squares[1].x, this.pill.squares[1].y + 1)
-      //    ].color == "white"
-      // ) {
-      //    return true
-      // }
-      // console.log("RETURNED FALSE")
+
 
       console.log("ISBELOWFREE : FALSE")
       return false
