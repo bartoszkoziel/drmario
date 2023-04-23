@@ -8,7 +8,10 @@ interface Square {
 }
 
 interface Pill {
-   squares: [{ x: number; y: number; color: string }, { x: number; y: number; color: string }]
+   sqr: [
+      { x: number; y: number; color: string },
+      { x: number; y: number; color: string }
+   ]
    axis: string
 }
 
@@ -29,37 +32,56 @@ class Game {
       document.onkeydown = (e) => {
          if (e.key == "ArrowRight") {
             // CHECKING IF MOVE IS POSSIBLE
-            if ((this.pill.squares[0].x + 1 < this.width && this.pill.squares[1].x + 1 < this.width) &&
-               this.currTab[this.getIndexOf(this.pill.squares[0].x + 1, this.pill.squares[0].y)].color == "white" &&
-               this.currTab[this.getIndexOf(this.pill.squares[1].x + 1, this.pill.squares[1].y)].color == "white"
+            if (
+               this.pill.sqr[0].x + 1 < this.width &&
+               this.pill.sqr[1].x + 1 < this.width &&
+               this.currTab[
+                  this.getIndexOf(this.pill.sqr[0].x + 1, this.pill.sqr[0].y)
+               ].color == "white" &&
+               this.currTab[
+                  this.getIndexOf(this.pill.sqr[1].x + 1, this.pill.sqr[1].y)
+               ].color == "white"
             ) {
-               this.pill.squares[0].x += 1
-               this.pill.squares[1].x += 1
+               this.pill.sqr[0].x += 1
+               this.pill.sqr[1].x += 1
                this.printer()
             } else {
                console.log("OUT OF BOUNDS")
             }
-         }
-
-         else if (e.key == "ArrowLeft") {
+         } else if (e.key == "ArrowLeft") {
             // CHECKING IF MOVE IS POSSIBLE
-            if ((this.pill.squares[0].x - 1 >= 0 && this.pill.squares[1].x - 1 >= 0) &&
-               this.currTab[this.getIndexOf(this.pill.squares[0].x - 1, this.pill.squares[0].y)].color == "white" &&
-               this.currTab[this.getIndexOf(this.pill.squares[1].x - 1, this.pill.squares[1].y)].color == "white"
+            if (
+               this.pill.sqr[0].x - 1 >= 0 &&
+               this.pill.sqr[1].x - 1 >= 0 &&
+               this.currTab[
+                  this.getIndexOf(this.pill.sqr[0].x - 1, this.pill.sqr[0].y)
+               ].color == "white" &&
+               this.currTab[
+                  this.getIndexOf(this.pill.sqr[1].x - 1, this.pill.sqr[1].y)
+               ].color == "white"
             ) {
-               this.pill.squares[0].x -= 1
-               this.pill.squares[1].x -= 1
+               this.pill.sqr[0].x -= 1
+               this.pill.sqr[1].x -= 1
                this.printer()
             } else {
                console.log("OUT OF BOUNDS")
             }
-         }
-
-         else if (e.key == "z") {
-            if (this.pill.axis == "right") { this.pill.axis = "down"; this.rotate("down") }
-            else if (this.pill.axis == "down") { this.pill.axis = "left"; this.rotate("left") }
-            else if (this.pill.axis == "left") { this.pill.axis = "up"; this.rotate("up") }
-            else if (this.pill.axis == "up") { this.pill.axis = "right"; this.rotate("right") }
+         } else if (e.key == "z") {
+            if (this.pill.axis == "right") {
+               if (this.rotate("down")) this.pill.axis = "down"
+            } else if (this.pill.axis == "down") {
+               if (this.rotate("left")) this.pill.axis = "left"
+            } else if (this.pill.axis == "left") {
+               if (this.rotate("up")) this.pill.axis = "up"
+            } else if (this.pill.axis == "up") {
+               if (this.rotate("right")) this.pill.axis = "right"
+            }
+         } else if (e.key == "ArrowDown") {
+            if (this.isBelowFree()) {
+               this.pill.sqr[0].y += 1
+               this.pill.sqr[1].y += 1
+               this.printer()
+            }
          }
          console.log(e.key)
       }
@@ -72,12 +94,16 @@ class Game {
 
    printer() {
       for (let i = 0; i < this.currTab.length; i++) {
-         let block = document.getElementById(this.currTab[i].x + "_" + this.currTab[i].y) as HTMLElement
+         let block = document.getElementById(
+            this.currTab[i].x + "_" + this.currTab[i].y
+         ) as HTMLElement
          block.style.backgroundColor = this.currTab[i].color
       }
       for (let i = 0; i < 2; i++) {
-         let block = document.getElementById(this.pill.squares[i].x + "_" + this.pill.squares[i].y) as HTMLElement
-         block.style.backgroundColor = this.pill.squares[i].color
+         let block = document.getElementById(
+            this.pill.sqr[i].x + "_" + this.pill.sqr[i].y
+         ) as HTMLElement
+         block.style.backgroundColor = this.pill.sqr[i].color
       }
    }
 
@@ -93,7 +119,7 @@ class Game {
                x: x,
                y: y,
                color: "white",
-               state: "none"
+               state: "none",
             })
             console.log("eququq")
          }
@@ -105,85 +131,108 @@ class Game {
       let rColor2 = this.numberToColor(Math.floor(Math.random() * 3))
 
       this.pill = {
-         squares: [
+         sqr: [
             { x: x, y: y, color: rColor1 },
-            { x: x + 1, y: y, color: rColor2 }
+            { x: x + 1, y: y, color: rColor2 },
          ],
-         axis: "right"
+         axis: "right",
       }
 
       this.pillInterval = setInterval(() => {
          console.log("INTERVAL RUNNING...")
 
          if (this.isBelowFree()) {
-            this.pill.squares[0].y += 1
-            this.pill.squares[1].y += 1
+            this.pill.sqr[0].y += 1
+            this.pill.sqr[1].y += 1
             this.printer()
          } else {
-            let index0 = this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y)
-            let index1 = this.getIndexOf(this.pill.squares[1].x, this.pill.squares[1].y)
+            let index0 = this.getIndexOf(this.pill.sqr[0].x, this.pill.sqr[0].y)
+            let index1 = this.getIndexOf(this.pill.sqr[1].x, this.pill.sqr[1].y)
 
             console.log("INDEX0", index0)
 
-            this.currTab[index0].color = this.pill.squares[0].color
-            this.currTab[index1].color = this.pill.squares[1].color
+            this.currTab[index0].color = this.pill.sqr[0].color
+            this.currTab[index1].color = this.pill.sqr[1].color
 
             clearInterval(this.pillInterval!)
             setTimeout(() => {
                this.createPill(this.startX, this.startY)
                this.printer()
-            }, 1000)
+            }, 10)
          }
-      }, 5000)
+      }, 500)
    }
 
    rotate(dir: string) {
       if (dir == "down") {
-         let index = this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y + 1)
+         let index = this.getIndexOf(this.pill.sqr[0].x, this.pill.sqr[0].y + 1)
          if (this.currTab[index].color == "white") {
-            this.pill.squares[1].x = this.currTab[index].x
-            this.pill.squares[1].y = this.currTab[index].y
+            this.pill.sqr[1].x = this.currTab[index].x
+            this.pill.sqr[1].y = this.currTab[index].y
             this.printer()
+            return true
          }
       } else if (dir == "left") {
-         let index = this.getIndexOf(this.pill.squares[0].x - 1, this.pill.squares[0].y)
-         if (this.currTab[index].color == "white") {
-            this.pill.squares[1].x = this.currTab[index].x
-            this.pill.squares[1].y = this.currTab[index].y
+         let index = this.getIndexOf(this.pill.sqr[0].x - 1, this.pill.sqr[0].y)
+         if (this.currTab[index].color == "white" && this.pill.sqr[0].x != 0) {
+            this.pill.sqr[1].x = this.currTab[index].x
+            this.pill.sqr[1].y = this.currTab[index].y
             this.printer()
+            return true
          }
       } else if (dir == "up") {
-         let index = this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y - 1)
+         let index = this.getIndexOf(this.pill.sqr[0].x, this.pill.sqr[0].y - 1)
          if (this.currTab[index].color == "white") {
-            this.pill.squares[1].x = this.currTab[index].x
-            this.pill.squares[1].y = this.currTab[index].y
+            this.pill.sqr[1].x = this.currTab[index].x
+            this.pill.sqr[1].y = this.currTab[index].y
             this.printer()
+            return true
          }
       } else if (dir == "right") {
-         let index = this.getIndexOf(this.pill.squares[0].x + 1, this.pill.squares[0].y)
-         if (this.currTab[index].color == "white") {
-            this.pill.squares[1].x = this.currTab[index].x
-            this.pill.squares[1].y = this.currTab[index].y
+         let index = this.getIndexOf(this.pill.sqr[0].x + 1, this.pill.sqr[0].y)
+         if (
+            this.currTab[index].color == "white" &&
+            this.pill.sqr[0].x != this.width - 1
+         ) {
+            this.pill.sqr[1].x = this.currTab[index].x
+            this.pill.sqr[1].y = this.currTab[index].y
             this.printer()
+            return true
          }
       }
+      return false
    }
 
    isBelowFree() {
       // PROBLEM HERE!
+
       // Checking axis and if the pill is at the bottom
-      if (this.pill.axis == "right" && this.pill.squares[0].y + 1 < this.height) {
+      if (
+         this.pill.sqr[0].y + 1 < this.height &&
+         this.pill.sqr[1].y + 1 < this.height
+      ) {
          // Checking if the colors of the blocks below are white
+         let x1 = this.pill.sqr[0].x
+         let y1 = this.pill.sqr[0].y
+
+         let x2 = this.pill.sqr[1].x
+         let y2 = this.pill.sqr[1].y
+
          if (
-            this.currTab[this.getIndexOf(this.pill.squares[0].x, this.pill.squares[0].y + 1)].color == "white" &&
-            this.currTab[this.getIndexOf(this.pill.squares[1].x, this.pill.squares[1].y + 1)].color == "white"
+            (this.pill.axis == "right" &&
+               this.currTab[this.getIndexOf(x1, y1 + 1)].color == "white" &&
+               this.currTab[this.getIndexOf(x2, y2 + 1)].color == "white") ||
+            (this.pill.axis == "down" &&
+               this.currTab[this.getIndexOf(x2, y2 + 1)].color == "white") ||
+            (this.pill.axis == "left" &&
+               this.currTab[this.getIndexOf(x1, y1 + 1)].color == "white" &&
+               this.currTab[this.getIndexOf(x2, y2 + 1)].color == "white") ||
+            (this.pill.axis == "up" &&
+               this.currTab[this.getIndexOf(x1, y1 + 1)].color == "white")
          ) {
-            console.log("ISBELOWFREE : TRUE")
             return true
          }
       }
-
-
 
       console.log("ISBELOWFREE : FALSE")
       return false
