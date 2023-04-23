@@ -25,6 +25,7 @@ class Game {
    height: number = 16
    startX: number = 3
    startY: number = 0
+   virusNum: number = 3
 
    constructor() {
       this.main = document.getElementById("main") as HTMLElement
@@ -122,6 +123,21 @@ class Game {
                state: "none",
             })
             console.log("eququq")
+         }
+      }
+
+      let tempCount = 0
+
+      while (tempCount < 3) {
+         console.log("HMMMMMMMMMMMMMMMMMMM")
+
+         let x = Math.floor(Math.random() * this.width)
+         let y = Math.floor(Math.random() * (this.height - 4)) + 4
+         let color = this.numberToColor(Math.floor(Math.random() * 3))
+
+         if (this.currTab[this.getIndexOf(x, y)].color == "white") {
+            this.currTab[this.getIndexOf(x, y)].color = color
+            tempCount++
          }
       }
    }
