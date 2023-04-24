@@ -268,6 +268,20 @@ class Game {
       console.log("OUT OF BOUNDS (this.numberToColor)")
       return "outOfBounds"
    }
+
+   markLines() {
+      // Checking horizontal lines
+      let marked = [] as Array<{x: number, y: number}>
+      for (let row = 0; row < this.height; row++) {
+         for (let col = 0; col < this.width; col++) {
+            
+
+            
+         }
+      }
+
+      return marked
+   }
 }
 
 const game = new Game()
