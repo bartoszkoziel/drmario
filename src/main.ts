@@ -15,6 +15,11 @@ interface Pill {
    axis: string
 }
 
+interface Scope {
+   x: number
+   y: number
+}
+
 class Game {
    main: HTMLElement
    pill!: Pill
@@ -84,7 +89,6 @@ class Game {
                this.printer()
             }
          }
-         console.log(e.key)
       }
 
       this.createBoard()
@@ -122,15 +126,12 @@ class Game {
                color: "white",
                state: "none",
             })
-            console.log("eququq")
          }
       }
 
       let tempCount = 0
 
       while (tempCount < 3) {
-         console.log("HMMMMMMMMMMMMMMMMMMM")
-
          let x = Math.floor(Math.random() * this.width)
          let y = Math.floor(Math.random() * (this.height - 4)) + 4
          let color = this.numberToColor(Math.floor(Math.random() * 3))
@@ -155,13 +156,13 @@ class Game {
       }
 
       this.pillInterval = setInterval(() => {
-         console.log("INTERVAL RUNNING...")
-
          if (this.isBelowFree()) {
             this.pill.sqr[0].y += 1
             this.pill.sqr[1].y += 1
             this.printer()
-         } else {
+         }
+         // upadek bloczka
+         else {
             let index0 = this.getIndexOf(this.pill.sqr[0].x, this.pill.sqr[0].y)
             let index1 = this.getIndexOf(this.pill.sqr[1].x, this.pill.sqr[1].y)
 
@@ -173,8 +174,9 @@ class Game {
             clearInterval(this.pillInterval!)
             setTimeout(() => {
                this.createPill(this.startX, this.startY)
+               this.deleteLines()
                this.printer()
-            }, 10)
+            }, 100)
          }
       }, 500)
    }
@@ -220,8 +222,6 @@ class Game {
    }
 
    isBelowFree() {
-      // PROBLEM HERE!
-
       // Checking axis and if the pill is at the bottom
       if (
          this.pill.sqr[0].y + 1 < this.height &&
@@ -249,14 +249,10 @@ class Game {
             return true
          }
       }
-
-      console.log("ISBELOWFREE : FALSE")
       return false
    }
 
    getIndexOf(x: number, y: number) {
-      console.log(y * this.width + x)
-
       return y * this.width + x
    }
 
@@ -269,18 +265,73 @@ class Game {
       return "outOfBounds"
    }
 
-   markLines() {
-      // Checking horizontal lines
-      let marked = [] as Array<{x: number, y: number}>
-      for (let row = 0; row < this.height; row++) {
-         for (let col = 0; col < this.width; col++) {
-            
+   deleteLines() {
+      let marked = [] as Scope[]
 
-            
+      // horizontal lines
+      for (let y = 0; y < this.height; y++) {
+         let prevColor, currColor: string
+         let count = 1
+
+         for (let x = 1; x < this.width; x++) {
+            prevColor = this.currTab[this.getIndexOf(x - 1, y)].color
+            currColor = this.currTab[this.getIndexOf(x, y)].color
+
+            if (prevColor == currColor && currColor != "white") count++
+            else if (prevColor != currColor) {
+               if (count > 3) {
+                  for (let i = 0; i < count; i++) {
+                     marked.push({ x: x - count + i, y: y })
+                  }
+               }
+               count = 1
+            }
+
+            if (x == this.width - 1) {
+               if (count > 3) {
+                  for (let i = 0; i < count; i++) {
+                     marked.push({ x: x - count + 1 + i, y: y })
+                  }
+               }
+               count = 1
+            }
          }
       }
 
-      return marked
+      // vertical lines
+      for (let x = 0; x < this.width; x++) {
+         let prevColor, currColor: string
+         let count = 1
+
+         for (let y = 1; y < this.height; y++) {
+            prevColor = this.currTab[this.getIndexOf(x, y - 1)].color
+            currColor = this.currTab[this.getIndexOf(x, y)].color
+
+            if (prevColor == currColor && currColor != "white") count++
+            else if (prevColor != currColor) {
+               if (count > 3) {
+                  for (let i = 0; i < count; i++) {
+                     marked.push({ x: x, y: y - count + i })
+                  }
+               }
+               count = 1
+            }
+            if (y == this.height - 1) {
+               if (count > 3) {
+                  for (let i = 0; i < count; i++) {
+                     marked.push({ x: x, y: y - count + i + 1 })
+                  }
+               }
+               count = 1
+            }
+         }
+      }
+
+      if (marked.length != 0) {
+         marked.forEach((item) => {
+            this.currTab[this.getIndexOf(item.x, item.y)].color = "white"
+         })
+      }
    }
 }
 
