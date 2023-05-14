@@ -327,10 +327,27 @@ class Game {
          }
       }
 
+      console.log(marked)
+
       if (marked.length != 0) {
          marked.forEach((item) => {
             this.currTab[this.getIndexOf(item.x, item.y)].color = "white"
          })
+
+         marked.forEach((item) => {
+            this.recFall(item)
+         })
+      }
+   }
+
+   recFall(item: Scope) {
+      let abowe = this.currTab[this.getIndexOf(item.x, item.y - 1)].color
+
+      if (abowe != "white" && item.y > 1) {
+         this.currTab[this.getIndexOf(item.x, item.y)].color = abowe
+         this.recFall(this.currTab[this.getIndexOf(item.x, item.y - 1)])
+      } else {
+         this.currTab[this.getIndexOf(item.x, item.y)].color = "white"
       }
    }
 }
